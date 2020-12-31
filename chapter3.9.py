@@ -1,3 +1,4 @@
+import string
 class Stack:
     def __init__(self):
         self.items = []
@@ -62,27 +63,68 @@ def findNextEntity(str):
 
     return res
 
+def addCompleteBrackets(expr):
+    operators = []
+    entities = []
+    i = 0
+    while i < len(expr):
+        if expr[i] in '+-*/':
+            if expr[i] in '+-':
+                operators.append(expr[i])
+                i += 1
+            elif expr[i] in '*/':
+                tmp = entities[-1]
+                entities.remove(tmp)
+                nextent = findNextEntity(expr[i+1:])
+                entities.append("(" + tmp + expr[i] + nextent + ")")
+                i += (len(nextent) + 1)
+        else:
+            temp = findNextEntity(expr[i:])
+            i += len(temp)
+            entities.append(temp)
 
+    while len(entities) > 1:
+        entities[0] = "(" + entities[0] + operators[0] + entities[1] + ")"
+        operators.remove(operators[0])
+        entities.remove(entities[1])
+    return entities[0]
 
+def infixtoprefix(expr):
+    expr = addCompleteBrackets(expr)
+    print(expr)
+    prefixList = []
+    temp = []
+    for i in expr:
+        if i == ')' and len(temp) >= 2:
+                last = temp.pop()
+                first = temp.pop()
+                prefixList.append(first)
+                prefixList.append(last)
+        elif i in '+-*/':
+            prefixList.append(i)
+        elif i in string.ascii_letters:
+            temp.append(i)
 
+    return ''.join(prefixList)
+'''
+print(infixtoprefix('(A+B)*(C+D)*(E+F)'))
+print(infixtoprefix('A+((B+C)*(D+E))'))
+print(infixtoprefix('A*B*C+E+F'))
+'''
 
+def infixtopostfix(expr):
+    expr = addCompleteBrackets(expr)
+    print(expr)
+    postfixList = []
+    left = Stack()
+    temp = []
+    for i in expr:
+        if i == ")":
+            postfixList.append(temp.pop())
+        elif i in '+-*/':
+            temp.append(i)
+        elif i in string.ascii_letters:
+            postfixList.append(i)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return ''.join(postfixList)
+print(infixtopostfix('(A+B)*(C+D)*(E+F)'))
